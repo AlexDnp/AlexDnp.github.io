@@ -1,0 +1,449 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="css/build.css?v05.08.2019" rel="stylesheet" type="text/css">
+    <script defer src="js/function.js?v05.08.2019" type="text/javascript"></script>
+
+    <script src="Chart.min.js?v22.10.2017" charset="utf-8"></script>
+    <script src="graph.js?v22.10.2017" type="text/javascript"></script>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title></title>
+    <script type="text/javascript">
+        var jsonResponse;
+
+
+        window.onload = function () {
+
+            input_disabled(true);
+            getConfig();
+            getStateDev();
+            Start();
+
+        }
+
+        function selectNetwork(l) {
+            document.getElementById('ssid').value = l.innerText || l.textContent;
+            document.getElementById('password').focus().hidden = false;
+        }
+
+
+
+    </script>
+
+    <script type="text/javascript"></script>
+
+</head>
+
+<body>
+
+    <div id="main" class="d-none">
+        <div class="alert" style="background-color:#c0c4c5">
+            <div class="row">
+                <div class=" col-md-3 col-lx-3" style="text-align: center">
+                    <label class="uin" style=" text-align:center; width: 40px ;background-color:#68b4d3"></label>
+                    <label id="stateStr" style="text-align:center;width: 180px;background-color:#97d4c0"></label>
+                    <label class="uout" style="text-align:center;width: 40px ;background-color:#28b62c"></label>
+
+                    <div class="offset-xl-2" style="text-align:left;padding-left:20px">
+                        <span class="d-none" id="spErrset" style="background-color:#fa6363">
+                            <label style="width: 150px">Ошибка :</label>
+                            <label class="errset"></label>
+                            <br>
+                        </span>
+                        <span class="d-none" id="spStep">
+                            <label style="width: 150px">Ступень</label>
+                            <label class="step">12</label>
+                            <br>
+                        </span>
+
+                        <span class="d-none" id="spCur">
+                            <label style="width: 150px">Ток :</label>
+                            <label class="cur"></label>
+                            <br>
+                        </span>
+
+                        <span class="d-none" id="spCurmax">
+                            <label style="width: 150px">Максимальный ток:</label>
+                            <label class="curmax"></label>
+                            <br>
+                        </span>
+
+                        <span class="d-none" id="spUmax">
+                            <label style="width: 150px">Макс.напряжение:</label>
+                            <label class="umax"></label>
+                            <br>
+                        </span>
+
+                        <span class="d-none" id="spUmin">
+                            <label style="width: 150px">Мин.напряжение:</label>
+                            <label class="umin"></label>
+                            <br>
+                        </span>
+
+                        <span class="d-none" id="spTermoIzm">
+                            <label style="width: 150px">Температура:</label>
+                            <label class="termoIzm">11</label>
+                            <br>
+                        </span>
+
+                        <span class="d-none" id="spTmrwork">
+                            <label style="width: 150px">Время работы:</label>
+                            <label class="tmwork">1111</label>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lx-6 col-md-6 alert-secondary">
+
+                    <canvas class="my-4 w-100 chartjs-render-monitor" id="inputChart"
+                        style="display: block; width: 964px; height: 200px;"></canvas>
+                    <div id="legend"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="container1" style="max-width: 100%">
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="alert alert-success " role="alert" id="history" style="font-size: 1.2rem">
+
+                        <button class="card-header btn-block " style="font-size: 1.75rem"
+                            onclick="getHistory(this)">История
+                            <span class="spinner-border float-right d-none" role="status"></span>
+                        </button>
+                        <label id="noHistory" class="hidden">Нет записей</label>
+                        <div class="form-group hidden" id="divHistory" style="font-size: 1rem">
+
+                            <label for="selectCountHistory" style="width: 80px" id="lbCountHistory">Записи: </label>
+                            <select name="selecCountHistory" id="selecCountHistory"
+                                onchange="this.options[this.selectedIndex].disabled='true';
+                                                 selectHistory(this.options[this.selectedIndex].val2,this.options[this.selectedIndex].value)">
+                            </select>
+
+                            <label for="countHistory" style="width: 80px">Записей: </label>
+                            <span id="countHistory"></span>
+                            <button style="font-size: 1rem;  " onclick="clearHistory()">Очистить
+                                <span class="spinner-border float-right d-none" role="status"></span>
+                            </button>
+                            <div class="form-control mb-3 table-responsive" role="alert" id="scrolltable"
+                                style="height: 250px">
+
+                                <table class="table table-striped" id="tableHistory"
+                                    style="color: #000000;background-color: #e7cd93">
+                                    <thead style="color: #000000;background-color: #ca9f40">
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Время</th>
+                                            <th scope="col">Состояние</th>
+                                            <th scope="col">Примечание</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bodyHistory">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+                        <div class="alert alert-secondary d-none" id="debug" role="alert" style="font-size: 1.2rem">
+                            <button class="card-header btn-block " style="font-size: 1.75rem"
+                                onclick="clickBody('dbg','debug.json',this)">Наладка
+                                <span class="spinner-border float-right d-none" role="status"></span>
+                            </button>
+                            <div class="card-body hidden" id="dbg">
+                                <h5 style="color: crimson">Внимание!!!  Включать ключи только при выключенном стабилизаторе</h5>
+                                    <label for="keyman" style="width: 160px">Вкл. ключа: </label>
+                                    <select id="keyman" style="width: 70px; text-align: left"
+                                    onchange="sendData('dkey',this.options[ selectedIndex].value,this) ">
+                                    <option value="0">Выкл</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                </select>
+                                <br>
+                                <label for="guardOff" style="width: 180px">Проверка защиты : </label>
+                                <input type="checkbox" id="guardOff" onclick="sendData('dgrd',Number(this.checked),this);this.checked=false">
+                                <br>
+                                <label for="fan" style="width: 180px">Проверка вентилятора : </label>
+                                <input type="checkbox" id="fan" onclick="sendData('dfan',Number(this.checked),this)">
+                            </div>
+                        </div>
+                    
+
+                    <div class="alert alert-secondary" role="alert" id="setting" style="font-size: 1.2rem">
+                        <button class="card-header btn-block " style="font-size: 1.75rem"
+                            onclick="clickBody('set','setting.json',this)">Настройка
+                            <span class="spinner-border float-right d-none" role="status"></span>
+                        </button>
+                        <div class="card-body hidden" id="set">
+                            <form id="frmSetting" action="#">
+                                <label class="alert-heading"
+                                    style="font-size: 1.5rem; text-align: center">Температура</label>
+                                <label class="termoIzm"
+                                    style="font-size: 1.5rem;width: 100px; text-align: center">+25</label>
+                                <hr>
+                                <label for="trmFanOn" style="width: 250px">Вкл. вентилятора: </label>
+                                <input type="text" size="2px" maxlength="2" id="trmFanOn" name="trmFanOn" minlength="2"
+                                    required pattern="[0-9]{2}" value="" oninput="actionSave('set','saveTrm')">
+                                <br>
+                                <label for="trmOff" style="width: 250px">Выкл. стабилизатора: </label>
+                                <input type="text" size="2px" maxlength="2" id="trmOff" name="trmOff" required
+                                    pattern="[0-9]{2}" value="" oninput="actionSave('set','saveTrm')">
+                                <br>
+                                <h4 class="alert-heading" style="text-align: center">Установка</h4>
+                                <hr>
+                                <label for="kUin" style="width: 250px">Входное напряжение: </label>
+                                <input type="text" size="4px" maxlength="5" id="kUin" name="kUin" required
+                                    pattern="[0-9]{1.3}" value="" oninput="actionSave('set','saveTrm')">
+                                <label class="uin"
+                                    style="width: 100px ; text-align: center; background-color:#68b4d3"></label>
+                                <br>
+                                <label for="kUout" style="width: 250px">Выходное напряжение: </label>
+                                <input type="text" size="4px" maxlength="5" id="kUout" name="kUout" required
+                                    pattern="[0-9]{1.3}" value="" oninput="actionSave('set','saveTrm')">
+                                <label class="uout"
+                                    style="width: 100px ;text-align: center; background-color:#28b62c"></label>
+                                <br>
+                                <label for="kCur" style="width: 250px">Входной ток: </label>
+                                <input type="text" size="4px" maxlength="5" id="kCur" name="kCur" required
+                                    pattern="[0-9]{1.3}" value="" oninput="actionSave('set','saveTrm')">
+                                <label class="cur"
+                                    style="width: 100px ;text-align: center; background-color:#ff4136"></label>
+                                <br>
+                                <label for="kUdop" style="width: 250px">Напряжение питания: </label>
+                                <input type="text" size="4px" maxlength="5" id="kUdop" name="kUdop" required
+                                    pattern="[0-9]{1.3}" value="" oninput="actionSave('set','saveTrm')">
+                                <label class="udop"
+                                    style="width: 100px ;text-align: center; background-color:#eed76f"></label>
+                            </form>
+                            <button class="btn btn-block btn-success hidden" id="saveTrm"
+                                onclick="sendForm('frmSetting','setting',this);return false;">Сохранить
+                                <span class="spinner-border float-right d-none" role="status"></span>
+                            </button>
+                            <hr>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-4">
+
+                    <div class="alert alert-success" role="alert" id="inf" style="font-size: 1.2rem">
+                        <button class="card-header  btn-block " style="font-size: 1.75rem"
+                            onclick="clickBody('Info','infoDev.json',this)">Информация
+                            <span class="spinner-border float-right d-none" role="status"></span>
+                        </button>
+
+                        <div class="card-body hidden " id="Info">
+                            <form id="frmInfo" action="#">
+                                <fieldset class="info" disabled="disabled">
+                                    <label for="iNumDev" style="width: 250px">№ устройства: </label>
+                                    <input type="text" size="8px" maxlength="8" id="iNumDev" name="iNumDev" value=""
+                                        oninput="actionSave('Info','saveInfo')">
+                                    <br>
+                                    <label for="iPower" style="width: 250px">Мощность кВт: </label>
+                                    <input type="text" size="2px" maxlength="3" id="iPower" name="iPower" required
+                                        pattern="[0-9]{1,3}" value="" oninput="actionSave('Info','saveInfo')">
+                                    <br>
+                                    <label for="iDateProd" style="width: 250px">Изготовлен: </label>
+                                    <input type="date" size="8px" maxlength="10" id="iDateProd" name="iDateProd"
+                                        value="" oninput="actionSave('Info','saveInfo')">
+                                    <br>
+                                    <label for="iSteps" style="width: 250px;">Ступеней: </label>
+                                    <select id="iSteps" style="width: 60px; text-align: left"
+                                        onchange="javascript: if(changeSteps(this)==true){actionSave('Info','saveInfo')} else toggle('saveInfo','hidden')">
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="16">16</option>
+                                    </select>
+                                </fieldset>
+                            </form>
+                            <br>
+                            <a> Версия ПО : <span id="vers"></span></a>
+                            <br>
+                            <a> Дата ПО : <span id="DateVers"></span></a>
+                            <br>
+                            <br>
+                            <button class="btn btn-block btn-success hidden" id="saveInfo"
+                                onclick="sendForm('frmInfo','infoDev',this);return false;">Сохранить
+                                <span class="spinner-border float-right d-none" role="status"></span>
+                            </button>
+                            <hr>
+
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success" role="alert" id="levels" style="font-size: 1.2rem">
+                        <button class="card-header btn-block " style="font-size: 1.75rem"
+                            onclick="clickBody('offLevel','levels.json',this)">Пороги
+                            <span class="spinner-border float-right d-none" role="status"></span>
+                        </button>
+                        <div class="card-body hidden" id="offLevel">
+                            <h4 class="alert-heading" style="text-align: center">Входное напряжение выключения</h4>
+                            <form id="frmLevels" action="#">
+                                <label for="offUinMin" style="width: 250px">Минимальное: </label>
+                                <input type="text" size="2px" maxlength="3" id="offUinMin" name="offUinMin"
+                                    minlength="2" min="80" required pattern="[0-9]{2,3}" value=""
+                                    oninput="actionSave('offLevel','saveOff')">
+                                <br>
+                                <label for="offUinMax" style="width: 250px">Максимальное: </label>
+                                <input type="text" size="2px" maxlength="3" id="offUinMax" name="offUinMax"
+                                    minlength="3" required pattern="[0-9]{3}" value=""
+                                    oninput="actionSave('offLevel','saveOff')">
+                                <br>
+                                <hr>
+                                <label for="offCurMax" style="width: 250px">Ток выключения: </label>
+                                <input type="text" size="2px" maxlength="3" id="offCurMax" name="offCurMax"
+                                    minlength="2" required pattern="[0-9]{2,3}" value=""
+                                    oninput="actionSave('offLevel','saveOff')">
+                                <br>
+                                <hr>
+                                <label for="ontime" style="width: 250px">Задержка вкл.(10-180сек): </label>
+                                <input type="text" size="2px" maxlength="3" id="ontime" name="ontime" minlength="2"
+                                    required pattern="[0-9]{2,3}" value=""
+                                    oninput="validation('ontime', 10, 180);actionSave('offLevel','saveOff')">
+                                <br>
+                                <hr>
+                                <h4 class="alert-heading" style="text-align: center">Защита</h4>
+                                <label for="gUoff" style="width: 250px">Напряжение выключения: </label>
+                                <input type="text" size="2px" maxlength="3" id="gUoff" name="gUoff" minlength="3"
+                                    required pattern="[0-9]{3}" value="" oninput="actionSave('offLevel','saveOff')">
+                                <br>
+                                <label for="gToff" style="width: 250px">Температура выключения: </label>
+                                <input type="text" size="2px" maxlength="2" id="gToff" name="gToff" minlength="2"
+                                    required pattern="[0-9]{2}" value="" oninput="actionSave('offLevel','saveOff')">
+                                <br>
+                                <label for="gTizm" style="width: 250px">Температура автомата: </label>
+                                <label id="gTizm" ></label>
+                                <br>
+                            </form>
+                            <button class="btn btn-block btn-success hidden" id="saveOff"
+                                onclick="sendForm('frmLevels','off',this);return false;">Сохранить
+                                <span class="spinner-border float-right d-none" role="status"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-4">
+                    <div class="alert alert-success" role="alert" id="levelsStep" style="font-size: 1.2rem">
+                        <button class="card-header btn-block " style="font-size: 1.75rem;"
+                            onclick="getLevelSteps(this)">Ступени
+                            <span class="spinner-border float-right d-none" role="status"></span>
+                        </button>
+                        <div class="card-body hidden" id="stepsLevel">
+                            <label>Входное напряжение :<label class="uin"
+                                    style="width: 60px;margin-left: 10px ;text-align: center; background-color:#68b4d3"></label></label>
+                            <h4 class="card-text" style="text-align: center">Напряжение включения ступени</h4>
+                            <form id="frmSteps" action="#levels">
+                                <div id="countSteps">
+                                </div>
+                            </form>
+                            <button class="btn btn-block btn-success hidden" id="saveSteps"
+                                onclick="sendForm('frmSteps','steps',this);return false;">Сохранить
+                                <span class="spinner-border float-right d-none" role="status"></span>
+                            </button>
+
+                            <hr>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-secondary" role="alert" id="configWiFi" style="width:100%">
+                        <button class="card-header btn-block " style="font-size: 1.75rem"
+                            onclick="toggle('wifi'); requestJson('config.json',this)">WiFi
+                            <span class="spinner-border float-right d-none" role="status"></span>
+                        </button>
+                        <div class="card-body hidden" id="wifi">
+                            <input type="checkbox" id="chBoxWiFi" class="card-title"
+                                onclick="selectSave(this,'saveInfo','configWiFi')">Изменить<Br>
+                            <div class="card-text" style="text-align: center ;font-size: 1.2rem; width:100%">
+                                <h5>Имя устройства</h5>
+
+                                <input type="text" id="ssdp" name="ssdp" pattern="[0-9a-zA-Zа-яА-Я.\\- ]{1,20}"
+                                    value="">
+                                <br>
+                                <br>
+                                <input type="button" class="btn btn-block btn-success hidden" value="Сохранить"
+                                    id="btSSDP"
+                                    onclick=" changeValueByName('ssdp',document.getElementById('ssdp').value), 
+                                                        send_request(this,'/ssdp?ssdp=' + document.getElementById('ssdp').value)">
+                                <hr>
+                                <h4>"Подключение к Wi-Fi роутеру"</h4>
+                                <br />
+                                <div class="c"><a href="/wifi">Поиск сетей</a></div>
+
+                                <div id="wifiList" class="hidden">
+                                    <!-- <a href='#p'
+                                                            onclick='selectNetwork(this)'>{v}</a><span class='q {i}'>{r}%</span> -->
+                                </div>
+
+                                <h5>Имя сети</h5>
+                                <input type="text" id="ssid" name="ssid" pattern="[0-9a-zA-Zа-яА-Я.\\- ]{1,20}"
+                                    value="">
+                                <h5>Пароль</h5>
+                                <input type="password" id="ssidPass" name="ssidPass"
+                                    pattern="[0-9a-zA-Zа-яА-Я.\\- ]{1,20}" value="">
+                                <br>
+                                <br>
+                                <input type="button" class="btn btn-block btn-success hidden" value="Сохранить"
+                                    id="btSTA" onclick="send_request(this,'/ssid?ssid=' + document.getElementById('ssid').value + '&'
+                                                         + 'ssidPass=' + document.getElementById('ssidPass').value )">
+                                <hr>
+                                <div class="time hidden" style="text-align: left ">
+                                    <label>Время на устройстве <h4 id="timeDev" name="timeDev">12:01:00 25.08.2019
+                                        </h4>
+                                    </label>
+                                    <hr>
+                                </div>
+
+                                <h4>"Точка доступа"</h4>
+                                <h5>Имя сети</h5>
+                                <input type="text" id="ssidAp" name="ssidAp" pattern="[0-9a-zA-Zа-яА-Я.\\- ]{1,20}"
+                                    value="">
+                                <h6>Имя домена</h6>
+                                <input type="text" id="nameDns" name="nameDns" pattern="[0-9a-zA-Zа-яА-Я.\\- ]{1,20}"
+                                    value="">
+                                <h6>Пароль</h6>
+                                <input type="password" id="ssidApPass" name="ssidApPass"
+                                    pattern="[0-9a-zA-Zа-яА-Я.\\- ]{1,20}" value="">
+                                <br>
+                                <br>
+                                <input type="button" class="btn btn-block btn-success hidden" value="Сохранить"
+                                    id="btAp" onclick="send_request(this,'/ssidAp?ssidAp=' + document.getElementById('ssidAp').value + '&'
+                                                         + 'ssidApPass=' + document.getElementById('ssidApPass').value + '&'
+                                                         + 'nameDns=' + document.getElementById('nameDns').value)">
+                                <hr>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="wait text-center" style="display: block;position: fixed;top: 50%;right: 50%;z-index: -1031">
+        <h4>Загрузка</h4>
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+    </div>
+</body>
+
+</html>
